@@ -1,11 +1,31 @@
+import PIL.Image
 import customtkinter as ctk
 import cv2
 import mediapipe as mp
 import threading
+import time
+import PIL
+from PIL import Image
+from pymongo import MongoClient
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
+
+
+
+
+                      
+                      
+def obtener_pregunta_y_opciones(n_pregunta):
+    cliente = MongoClient('localhost', 27017)
+    base_de_datos = cliente["Manos"]
+    coleccion = base_de_datos["Opciones"]
+    documento = coleccion.find_one()
+    preguntas = documento['preguntas']
+    opciones = preguntas[n_pregunta]['opciones']
+    
+    return preguntas, opciones
 
 def detectar_gestos(hand_landmarks):
     index_tip_y = hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y
@@ -22,32 +42,53 @@ def detectar_gestos(hand_landmarks):
         middle_tip_y > middle_pip_y and
         ring_tip_y > ring_pip_y and
         pinky_tip_y > pinky_pip_y):
-        button_callback(1)
+        button_callback(0)
     
     
     if (index_tip_y < index_pip_y and
         middle_tip_y < middle_pip_y and
         ring_tip_y > ring_pip_y and
         pinky_tip_y > pinky_pip_y):
-        button_callback(2)
+        button_callback(1)
         
     if (index_tip_y < index_pip_y and
         middle_tip_y < middle_pip_y and
         ring_tip_y < ring_pip_y and
         pinky_tip_y > pinky_pip_y):
-        button_callback(3)
+        button_callback(2)
     
     
     if (index_tip_y < index_pip_y and
         middle_tip_y < middle_pip_y and
         ring_tip_y < ring_pip_y and
         pinky_tip_y < pinky_pip_y):
-        button_callback(4)
+        button_callback(3)
 
         
         
 def button_callback(button_number):
-    print(f"Button {button_number} pressed")
+    global n_pregunta, preguntas, opciones
+    print(f"Seleccion: ", opciones[button_number])
+    n_pregunta += 1
+    if n_pregunta < len(preguntas):
+        preguntas, opciones = obtener_pregunta_y_opciones(n_pregunta)
+        update_gui()
+    time.sleep(2)
+
+
+
+def clear_gui():
+    for widget in app.winfo_children():
+        widget.grid_forget()
+
+def update_gui():
+    clear_gui()
+    title_label = ctk.CTkLabel(app, text=preguntas[n_pregunta]['pregunta'] , font=("Helvetica", 29))
+    title_label.grid(row=0, columnspan=2, pady=10)
+    button_texts = [opciones[0], opciones[1], opciones[2], opciones[3]]
+    for i, text in enumerate(button_texts):
+        button = ctk.CTkButton(app, text=text, command=lambda i=i: button_callback(i), height=80, width=55, font=('helvetica', 15))
+        button.grid(row=i//2 + 1, column=i%2, padx=150, pady=20)
     
 
 def hilo_camara():
@@ -85,21 +126,44 @@ def hilo_camara():
     cv2.destroyAllWindows()
 
 
-ctk.set_appearance_mode("dark")
-ctk.set_default_color_theme("dark-blue")
 
-app = ctk.CTk()
-app.title("My App")
-app.geometry("600x400")
-
-button_texts = ["pregunta 1", "pregunta 2", "pregunta 3", "pregunta 4"]
-for i, text in enumerate(button_texts):
-    button = ctk.CTkButton(app, text=text, command=lambda i=i: button_callback(i+1))
-    button.grid(row=i//2, column=i%2, padx=20, pady=20)
+if __name__ == '__main__':
+    n_pregunta = 0
+    preguntas, opciones = obtener_pregunta_y_opciones(n_pregunta)
+    
 
 
-webcam_thread = threading.Thread(target=hilo_camara)
-webcam_thread.start()
+    ctk.set_appearance_mode("light")
+    ctk.set_default_color_theme("tema.json")
+
+    app = ctk.CTk()
+    app.title("My App")
+    app.geometry("1000x600")
+    app.update
+    
+    update_gui()
+
+    title_label = ctk.CTkLabel(app, text=preguntas[n_pregunta]['pregunta'] , font=("Helvetica", 29))
+    title_label.grid(row=0, column=0, columnspan=2, pady=10, sticky="ew")
+
+    
+    button_font = ("Helvetica", 50)
+    button_texts = [opciones[0],opciones[1],opciones[2],opciones[3]]
+    for i, text in enumerate(button_texts):
+        button = ctk.CTkButton(app, text=text, command=lambda i=i: button_callback(i), height=80, width=55, font=('helvetica', 15))
+        button.grid(row=i//2 + 1, column=i%2, padx=150, pady=20)
 
 
-app.mainloop()
+    image = PIL.Image.open('descarga.PNG')
+    background_image = ctk.CTkImage(image, size=(150, 100))
+
+    bg_lbl = ctk.CTkLabel(app, text="", image=background_image)
+    bg_lbl.place(x=400, y=400)
+
+
+
+
+    webcam_thread = threading.Thread(target=hilo_camara)
+    webcam_thread.start()
+
+    app.mainloop()
