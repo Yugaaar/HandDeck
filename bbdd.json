@@ -1,0 +1,48 @@
+[
+    {
+        "texto": "¿Cuál es la capital de Francia?",
+        "opciones": [
+            "París",
+            "Londres",
+            "Roma",
+            "Berlín"
+        ]
+    },
+    {
+        "texto": "¿Cuál es el océano más grande?",
+        "opciones": [
+            "Atlántico",
+            "Pacífico",
+            "Índico",
+            "Ártico"
+        ]
+    },
+    {
+        "texto": "¿Qué lenguaje de programación es conocido por su serpiente?",
+        "opciones": [
+            "Java",
+            "Python",
+            "C++",
+            "Ruby"
+        ]
+    },
+    {
+        "texto": "¿En qué año llegó el hombre a la Luna?",
+        "opciones": [
+            "1965",
+            "1969",
+            "1972",
+            "1980"
+        ]
+    },
+    {
+        "texto": "¿Cual es la mejor universidad del mundo?",
+        "opciones": [
+            "La UAX",
+            "La UAX",
+            "La UAX",
+            "La UAX"
+        ]
+    }
+
+]
