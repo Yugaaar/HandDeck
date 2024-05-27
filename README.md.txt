@@ -1,1 +1,1 @@
-Proyecto de control de gestos para mi TFG en la UAX
+Proyecto con mediapipe para mi TFG
