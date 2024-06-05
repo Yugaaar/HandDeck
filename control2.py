@@ -1,7 +1,6 @@
 import cv2
 import mediapipe as mp
 import mouse
-import keyboard
 import pyautogui
 import time
 
@@ -44,15 +43,15 @@ class HandDeck:
             color = (0,0,255)
         
         cv2.line(image, (int(dedo1.x * image.shape[1]), int(dedo1.y * image.shape[0])),
-                 (int(dedo2.x * image.shape[1]), int(dedo2          .y * image.shape[0])), color, 2)
+                 (int(dedo2.x * image.shape[1]), int(dedo2.y * image.shape[0])), color, 2)
 
     def run(self):
         try:
             camara = cv2.VideoCapture(0)
             with self.mp_hands.Hands(model_complexity=1, min_detection_confidence=0.6, min_tracking_confidence=0.5) as hands:
                 while camara.isOpened():    
-                    ret, image = camara.read()
-                    if not ret:
+                    funciona, image = camara.read()
+                    if not funciona:
                         print("error la camara")
                         break
 
